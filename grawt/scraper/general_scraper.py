@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, List
 from urllib.parse import urlparse
 
@@ -69,9 +69,15 @@ class GeneralScraper(BaseScraper):
         datetimes: List[datetime] = []
         for time in soup.find_all('time'):
             date_str = time.get('datetime')
-            dt: datetime = parser.parse(date_str)
-            datetimes.append(dt)
-        return min(datetimes)
+            dt: datetime 
+            try:
+                datetimes.append(parser.parse(date_str))
+            except parser.ParserError as pe:
+                print(pe)
+        if len(datetimes) > 0:
+            return min(datetimes)
+        else:
+            return datetime.now()
 
     def extract_all_hrefs(self, soup: BeautifulSoup) -> List[str]:
         """Extract all hrefs found on a website.
@@ -105,3 +111,4 @@ class GeneralScraper(BaseScraper):
             parsed = urlparse(url)
             if parsed.netloc:
                 netloc_urls.append(url)
+        return netloc_urls

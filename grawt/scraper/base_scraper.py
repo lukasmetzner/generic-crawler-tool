@@ -88,5 +88,5 @@ class BaseScraper(ABC):
         sa.main_text = self.extract_main_text(soup, self._min_length)
         sa.datetime_ = self.extract_date(soup)
         sa.hrefs = self.extract_all_hrefs(soup)
-        sa.links = self.extract_netloc_links(soup)
+        sa.netloc_links = self.extract_netloc_links(soup)
         return sa
