@@ -15,7 +15,7 @@ from grawt.scraper.general_scraper import GeneralScraper
 #TODO create config
 URL_RETRY_DELAY: float = 0.25
 MAX_RETRIES: int = 5
-HASHES_FILE_PATH: str = './hashes.json'
+URLS_FILE_PATH: str = './urls.json'
 
 
 class MaxRetriesReached(Exception):
@@ -29,31 +29,31 @@ class Crawler():
         self._scrapers: List[BaseScraper] = [
             # To be filled
         ]
-        self._hashes_file: str = HASHES_FILE_PATH
-        self._check_hashes_file()
-        self._hashes: List[str] = self._load_hashes_file()
+        self._urls_file: str = URLS_FILE_PATH
+        self._check_urls_file()
+        self._urls: List[str] = self._load_urls_file()
 
-    def _check_hashes_file(self) -> None:
-        """ Check if hashes file exists and create one in case it is not.
+    def _check_urls_file(self) -> None:
+        """ Check if urls file exists and create one in case it is not.
         """
-        if not os.path.exists(self._hashes_file):
-            with open(self._hashes_file, 'w') as file:
+        if not os.path.exists(self._urls_file):
+            with open(self._urls_file, 'w') as file:
                 json.dump([], file)
 
-    def _load_hashes_file(self) -> List[str]:
-        """ Load hashes file using json.
+    def _load_urls_file(self) -> List[str]:
+        """ Load urls file using json.
 
         Returns:
             List[str]: List with hashed URLs.
         """
-        with open(self._hashes_file, 'r') as file:
+        with open(self._urls_file, 'r') as file:
             return json.load(file)
 
-    def _write_hashes_file(self) -> None:
-        """Write hashes to json file
+    def _write_urls_file(self) -> None:
+        """Write urls to json file
         """
-        with open(self._hashes_file, 'w') as file:
-            json.dump(self._hashes, file)
+        with open(self._urls_file, 'w') as file:
+            json.dump(self._urls, file)
 
 
     def _load_url(self, url: str, retry: int = 0) -> str:
@@ -139,14 +139,13 @@ class Crawler():
 
         article: ScrapedArticle
         try:
-            hashed_url: str = sha3_256(url.encode()).hexdigest()
-            if hashed_url in self._hashes:
-                print('Found an already scraped article: {}'.format(hashed_url))
+            if url in self._urls:
+                print('Found an already scraped article: {}'.format(url))
                 return
             else:
                 article: ScrapedArticle = self._single_scrape(url)
-                self._hashes.append(hashed_url)
-                print('Scraped {}'.format(hashed_url))
+                self._urls.append(url)
+                print('Scraped {}'.format(url))
         except Exception as e:
             print(str(e))
             return
@@ -192,7 +191,7 @@ class Crawler():
             depth=depth, 
             scraped_articles=scraped_articles
         )
-        self._write_hashes_file()
+        self._write_urls_file()
         if scraped_articles is None:
             return []
         else:
