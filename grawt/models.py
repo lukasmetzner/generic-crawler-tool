@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List
+from hashlib import sha3_256
 
 
 class ScrapedArticle():
@@ -28,4 +29,4 @@ class ScrapedArticle():
         return self.url == o.url
 
     def __hash__(self) -> int:
-        return hash(self.url)
+        return int(sha3_256(self.url.encode()).hexdigest(), 16)
