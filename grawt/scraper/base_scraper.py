@@ -9,7 +9,6 @@ from grawt.models import ScrapedArticle
 class BaseScraper(ABC):
     def __init__(self) -> None:
         super().__init__()
-        self._min_length: int = 100
 
     @abstractmethod
     def extract_headline(self, soup: BeautifulSoup) -> str:
@@ -74,7 +73,7 @@ class BaseScraper(ABC):
         """
         pass
 
-    def scrape_article(self, soup: BeautifulSoup) -> ScrapedArticle:
+    def scrape_article(self, soup: BeautifulSoup, main_text_min_length: int) -> ScrapedArticle:
         """Scrape an article from a websites soup.
 
         Args:
@@ -85,7 +84,7 @@ class BaseScraper(ABC):
         """
         sa = ScrapedArticle()
         sa.headline = self.extract_headline(soup)
-        sa.main_text = self.extract_main_text(soup, self._min_length)
+        sa.main_text = self.extract_main_text(soup, main_text_min_length)
         sa.datetime_ = self.extract_date(soup)
         sa.hrefs = self.extract_all_hrefs(soup)
         sa.netloc_links = self.extract_netloc_links(soup)

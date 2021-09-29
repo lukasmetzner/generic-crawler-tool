@@ -8,15 +8,12 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
+from grawt.config_loader import load_config
 from grawt.models import ScrapedArticle
 from grawt.scraper.base_scraper import BaseScraper
 from grawt.scraper.general_scraper import GeneralScraper
 
-#TODO create config
-URL_RETRY_DELAY: float = 0.25
-MAX_RETRIES: int = 5
-URLS_FILE_PATH: str = './urls.json'
-
+DEFAULT_CONFIG_PATH: str = "./config.yaml"
 
 class MaxRetriesReached(Exception):
     pass
@@ -24,12 +21,13 @@ class MaxRetriesReached(Exception):
 
 class Crawler():
 
-    def __init__(self) -> None:
+    def __init__(self, config_path: str = DEFAULT_CONFIG_PATH) -> None:
+        self._config = load_config(config_path)
         self._general_scraper = GeneralScraper()
         self._scrapers: List[BaseScraper] = [
             # To be filled
         ]
-        self._urls_file: str = URLS_FILE_PATH
+        self._urls_file: str = self._config["urls_file_path"]
         self._check_urls_file()
         self._urls: List[str] = self._load_urls_file()
 
@@ -69,7 +67,7 @@ class Crawler():
         Returns:
             str: The raw html in form of a string.
         """
-        if retry > MAX_RETRIES:
+        if retry > self._config["max_retries"]:
             raise MaxRetriesReached('Reached maximum amount of retries.')
 
         try:
@@ -77,7 +75,7 @@ class Crawler():
         except Exception as e:
             print(str(e))
             retry += 1
-            sleep(URL_RETRY_DELAY)
+            sleep(self._config["url_retry_delay"])
             return self._load_url(url, retry)
 
     def _choose_scraper(self, netloc: str) -> BaseScraper:
@@ -107,7 +105,7 @@ class Crawler():
         netloc: str = urlparse(url).netloc
         soup: BeautifulSoup = BeautifulSoup(raw_html, 'html.parser')
         scraper: BaseScraper = self._choose_scraper(netloc)
-        scraped_article: ScrapedArticle = scraper.scrape_article(soup)
+        scraped_article: ScrapedArticle = scraper.scrape_article(soup, self._config.get("main_text_min_length", 150))
         scraped_article.url = url
         return scraped_article
 

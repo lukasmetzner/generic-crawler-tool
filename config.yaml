@@ -1,0 +1,4 @@
+urls_file_path: './urls.json'
+max_retries: 5
+url_retry_delay: 0.25
+main_text_min_length: 150

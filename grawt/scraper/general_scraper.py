@@ -11,7 +11,6 @@ class GeneralScraper(BaseScraper):
 
     def __init__(self) -> None:
         super().__init__()
-        self._min_length: int = 150
 
     def extract_headline(self, soup: BeautifulSoup) -> str:
         """Extract the headline of the website.
