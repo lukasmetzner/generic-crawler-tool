@@ -139,18 +139,17 @@ class Crawler():
 
         article: ScrapedArticle
         try:
+            article: ScrapedArticle = self._single_scrape(url)
             if url in self._urls:
                 print('Found an already scraped article: {}'.format(url))
-                return
             else:
-                article: ScrapedArticle = self._single_scrape(url)
                 self._urls.append(url)
+                scraped_articles.add(article)
                 print('Scraped {}'.format(url))
         except Exception as e:
             print(str(e))
             return
 
-        scraped_articles.add(article)
         depth += 1
         link: str
         for link in article.netloc_links:
